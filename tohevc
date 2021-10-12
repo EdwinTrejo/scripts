@@ -1,0 +1,34 @@
+#!/bin/tcsh -f
+
+#foreach item ( $argv )
+	
+	set namepart = `echo $argv | rev | cut -d"." -f2- | rev`
+	echo $namepart
+	
+	set filepart = `echo $argv | rev | cut -d"." -f1  | rev`
+	echo $filepart
+	
+	set newname = "$namepart.hvec.$filepart"
+	echo making $newname
+	
+	#ffmpeg \
+	#-i "$argv" \
+	#-c:v libx265 \
+	#-preset slow \
+	#-x265-params crf=22 \
+	#-c:a libmp3lame \
+	#-b:a 128k \
+	#"$newname"
+	
+	ffmpeg \
+	-y \
+	-i "$argv" \
+	-c:v hevc_nvenc \
+	-rc constqp \
+#	-rc cbr_ld_hq \
+	-qp 28 \
+	-v verbose "$newname"
+	
+	mv "$argv" "$argv".spare
+
+#end

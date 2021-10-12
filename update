@@ -1,0 +1,8 @@
+#!/bin/zsh
+sudo snap refresh
+~/.oh-my-zsh/tools/./upgrade.sh
+#omz update
+sudo apt update
+sudo apt upgrade -y
+sudo apt dist-upgrade -y
+sudo apt remove -y

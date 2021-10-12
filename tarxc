@@ -1,0 +1,19 @@
+#!/bin/bash
+
+dir="$1"
+newfilename="$1".tar.xz
+
+[ $# -eq 0 ] && { echo "Usage: $0 dir-name"; exit 1; }
+
+if [ -d "$dir" -a ! -h "$dir" ]
+then
+   tput bold; tput setaf 2;
+   echo "$dir found and now compressing to $newfilename, please wait..."
+   export XZ_DEFAULTS="-T 8"
+   tput setaf 1;
+   time tar -cjf "$newfilename" "$dir"
+else
+   tput sgr0;tput setaf 1;
+   echo "Error: $dir not found or is symlink to $(readlink -f ${dir})."
+fi
+tput sgr0;
