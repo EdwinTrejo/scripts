@@ -1,8 +1,50 @@
 #!/bin/zsh
 sudo snap refresh
 ~/.oh-my-zsh/tools/./upgrade.sh
-#omz update
-sudo apt update
-sudo apt upgrade -y
-sudo apt dist-upgrade -y
-sudo apt remove -y
+
+ARCH_SCRIPT=`uname -m`
+ARCH_SCRIPT_PI=arm
+if [[ "$ARCH_SCRIPT" == *"$ARCH_SCRIPT_PI"* ]]
+then
+	pihole -up
+else
+	tput bold; tput setaf 2;
+	echo "Not Raspberry Pi, will not try to update pihole."
+	tput sgr0;
+fi
+
+PROG_APT=`which apt`
+PROG_DNF=`which dnf`
+PROG_PACMAN=`which pacman`
+PROG_ZYPPER=`which zypper`
+
+tput bold; tput setaf 1;
+echo $PROG_APT
+echo $PROG_DNF
+echo $PROG_PACMAN
+echo $PROG_ZYPPER
+tput sgr0;
+
+
+if [ "$(grep -Ei 'debian|buntu|mint|raspbian|elementary' /etc/*release)" ]; then
+	sudo apt update
+	sudo apt upgrade -y
+	sudo apt dist-upgrade -y
+	sudo apt remove -y
+fi
+
+if [ "$(grep -Ei 'arch|manjaro' /etc/*release)" ]; then
+	sudo pacman -Syu
+fi
+
+if [ "$(grep -Ei 'redhat|fedora|centos' /etc/*release)" ]; then
+	sudo dnf clean all
+	sudo dnf check-update
+	sudo dnf upgrade -y
+fi
+
+if [ "$(grep -Ei 'opensuse' /etc/*release)" ]; then
+	sudo zypper update -y
+fi
+
+tput sgr0;
