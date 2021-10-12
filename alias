@@ -1,0 +1,4 @@
+alias update="~/scripts/update"
+alias tohevc="~/scripts/tohevc"
+alias tohevcbatch="~/scripts/tohevcbatch"
+alias tarxc="~/scripts/tarxc"
