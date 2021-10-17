@@ -22,13 +22,25 @@
 	
 	ffmpeg \
 	-y \
+	-threads 8 \
+	-hwaccel nvdec \
+	-hwaccel_output_format cuda \
 	-i "$argv" \
 	-c:v hevc_nvenc \
-	-rc constqp \
-#	-rc cbr_ld_hq \
-	-qp 28 \
+	-rc vbr -tune:v ll \
+	#-rc-lookahead:v 32 \
+	-cq:v 21 \
+	#-qmin 24  \
+	#-qmax 24 \
+	-profile:v main10 \
+	#-pix_fmt p010le \
+	-b:v 0 \
+	-maxrate:v 5M \
+	-bufsize:v 8M \
+	#-qp 28 \
+	#-map 0 \
 	-v verbose "$newname"
 	
-	mv "$argv" "$argv".spare
+	#mv "$argv" "$argv".spare
 
 #end

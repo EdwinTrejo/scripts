@@ -1,0 +1,13 @@
+#!/bin/tcsh
+
+#call by using 
+#unzipbatch "*.zip"
+
+foreach item ( $argv )
+	
+	echo $item
+	unzip $item &
+
+end
+wait $(jobs -p)
+
