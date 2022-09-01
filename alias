@@ -6,3 +6,5 @@ alias pigzz="~/scripts/pigzz"
 alias pigzzd="~/scripts/pigzzd"
 alias unzipbatch="~/scripts/unzipbatch"
 alias findframes="~/scripts/findframes"
+
+alias utop="htop -u $USER"
