@@ -14,7 +14,7 @@ if [ "$(grep -Ei 'debian|buntu|mint|raspbian|elementary' /etc/*release)" ]; then
 		ca-certificates curl software-properties-common nginx php-fpm \
 		wget curl zsh git git-core gnome-shell ubuntu-session gnome-boxes \
 		network-manager make snap snapd flatpak meson sassc libglib2.0-dev \
-		libxml2-utils; \
+		libxml2-utils csh tcsh; \
 	do sudo apt-get build-dep $i -y; done
 
 	sudo apt upgrade -y

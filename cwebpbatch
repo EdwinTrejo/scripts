@@ -1,0 +1,13 @@
+#!/bin/bash
+
+#call by using 
+#cewpbatch "list of image files"
+
+for filename in "$@"
+do
+  # failsafe, does filename exists? 
+  # if not continue 
+  [ -e "$filename" ] || continue
+  cwebp -q 90 $filename -o "${filename%%.*}.webp" &
+done
+wait $(jobs -p)

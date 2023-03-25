@@ -7,5 +7,6 @@ alias pigzzd="~/scripts/pigzzd"
 alias unzipbatch="~/scripts/unzipbatch"
 alias findframes="~/scripts/findframes"
 alias proper_reboot="~/scripts/proper_reboot"
-
 alias utop="htop -u $USER"
+alias see-binary="od -c"
+alias cwebpbatch="~/scripts/cwebpbatch"
