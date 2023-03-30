@@ -14,6 +14,7 @@ else
        pihole -up
 fi
 
+# BIG COMMENT
 : <<'END'
 if [[ "$ARCH_SCRIPT" == *"$ARCH_SCRIPT_PI"* ]]
 then
