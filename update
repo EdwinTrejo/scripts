@@ -4,6 +4,17 @@ sudo snap refresh
 
 ARCH_SCRIPT=`uname -m`
 ARCH_SCRIPT_PI=arm
+
+if ! command -v pihole &> /dev/null
+then
+       tput bold; tput setaf 2;
+        echo "Not Raspberry Pi, will not try to update pihole."
+        tput sgr0;
+else
+       pihole -up
+fi
+
+: <<'END'
 if [[ "$ARCH_SCRIPT" == *"$ARCH_SCRIPT_PI"* ]]
 then
 	pihole -up
@@ -12,6 +23,7 @@ else
 	echo "Not Raspberry Pi, will not try to update pihole."
 	tput sgr0;
 fi
+END
 
 PROG_APT=`which apt`
 PROG_DNF=`which dnf`
