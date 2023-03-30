@@ -1,15 +1,7 @@
-# scripts
+#!/bin/bash
 
-## run before
+# git update-index --chmod=+x foo.sh
 
-```
-chmod +x set-rights.sh
-./set-rights.sh
-```
-
-or
-
-```
 chmod -x alias
 chmod -x LICENSE
 chmod -x README.md
@@ -24,4 +16,3 @@ chmod +x tohevc
 chmod +x tohevcbatch
 chmod +x unzipbatch
 chmod +x update
-```
