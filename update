@@ -1,21 +1,31 @@
 #!/bin/zsh
-sudo snap refresh
-~/.oh-my-zsh/tools/./upgrade.sh
 
-ARCH_SCRIPT=`uname -m`
-ARCH_SCRIPT_PI=arm
-
-if ! command -v pihole &> /dev/null
+if command -v snap &> /dev/null 
 then
-       tput bold; tput setaf 2;
-        echo "Not Raspberry Pi, will not try to update pihole."
-        tput sgr0;
+	sudo snap refresh
+fi
+
+
+ZSHRCFILE=~/.zshrc
+if [ -f "$ZSHRCFILE" ]; then
+	~/.oh-my-zsh/tools/./upgrade.sh
+	# omz update
+fi
+
+if ! command -v pihole &> /dev/null 
+then
+	tput bold; tput setaf 2;
+	echo "Not Raspberry Pi, will not try to update pihole."
+	tput sgr0;
 else
-       pihole -up
+	pihole -up
 fi
 
 # BIG COMMENT
 : <<'END'
+ARCH_SCRIPT=`uname -m`
+ARCH_SCRIPT_PI=arm
+
 if [[ "$ARCH_SCRIPT" == *"$ARCH_SCRIPT_PI"* ]]
 then
 	pihole -up
@@ -26,37 +36,76 @@ else
 fi
 END
 
-PROG_APT=`which apt`
-PROG_DNF=`which dnf`
-PROG_PACMAN=`which pacman`
-PROG_ZYPPER=`which zypper`
+NOT_SET='unset'
+SET='set'
+
+PROG_APT=$NOT_SET
+PROG_DNF=$NOT_SET
+PROG_PACMAN=$NOT_SET
+PROG_ZYPPER=$NOT_SET
+
+if command -v apt &> /dev/null 
+then
+	if [ "$(grep -Ei 'debian|buntu|mint|raspbian|elementary' /etc/*release)" ]; then
+		PROG_APT=$SET
+	fi
+fi
+
+
+if command -v dnf &> /dev/null 
+then
+	if [ "$(grep -Ei 'redhat|fedora|centos' /etc/*release)" ]; then
+		PROG_DNF=$SET
+	fi
+fi
+
+
+if command -v pacman &> /dev/null 
+then
+	if [ "$(grep -Ei 'arch|manjaro' /etc/*release)" ]; then
+		PROG_PACMAN=$SET
+	fi
+fi
+
+if command -v zypper &> /dev/null 
+then
+	if [ "$(grep -Ei 'opensuse' /etc/*release)" ]; then
+		PROG_ZYPPER=$SET
+	fi
+fi
 
 tput bold; tput setaf 1;
-echo $PROG_APT
-echo $PROG_DNF
-echo $PROG_PACMAN
-echo $PROG_ZYPPER
-tput sgr0;
 
-
-if [ "$(grep -Ei 'debian|buntu|mint|raspbian|elementary' /etc/*release)" ]; then
+if [[ "$PROG_APT" == "$SET" ]]
+then
+	echo $PROG_APT apt
+	tput sgr0;
 	sudo apt update
 	sudo apt upgrade -y
 	sudo apt dist-upgrade -y
 	sudo apt remove -y
 fi
 
-if [ "$(grep -Ei 'arch|manjaro' /etc/*release)" ]; then
+if [[ "$PROG_PACMAN" == "$SET" ]]
+then
+	echo $PROG_PACMAN pacman
+	tput sgr0;
 	sudo pacman -Syu
 fi
 
-if [ "$(grep -Ei 'redhat|fedora|centos' /etc/*release)" ]; then
+if [[ "$PROG_DNF" == "$SET" ]]
+then
+	echo $PROG_DNF dnf
+	tput sgr0;
 	sudo dnf clean all
 	sudo dnf check-update
 	sudo dnf upgrade -y
 fi
 
-if [ "$(grep -Ei 'opensuse' /etc/*release)" ]; then
+if [[ "$PROG_ZYPPER" == "$SET" ]]
+then
+	echo $PROG_ZYPPER zypper
+	tput sgr0;
 	sudo zypper update -y
 fi
 
