@@ -5,7 +5,9 @@
 chmod -x alias
 chmod -x LICENSE
 chmod -x README.md
+chmod +x clamscandir.sh
 chmod +x cwebpbatch
+chmod +x lsiommu.sh
 chmod +x findframes
 chmod +x installdeps
 chmod +x pigzz
