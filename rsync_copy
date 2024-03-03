@@ -1,5 +1,10 @@
 #!/usr/bin/env zsh
 
+# The -azP flags in rsync ensure:
+# archive mode (preserves permissions, ownership, etc.)
+# z compression for data transfer
+# P progress display
+
 if [[ -d "$1" && -d "$2" ]]; then
   rsync -azP $1/ $2
 fi
