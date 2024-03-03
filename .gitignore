@@ -1,0 +1,4 @@
+.tests/docker/arch/update
+.tests/docker/fedora/update
+.tests/docker/ubuntu/update
+.tests/docker/opensuse_tumbleweed/update

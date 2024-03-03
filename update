@@ -1,23 +1,74 @@
 #!/bin/zsh
 
-if command -v snap &> /dev/null 
-then
+start_color() {
+    if [[ -z $1 ]]; then color_code=1; else color_code=$1; fi
+    tput bold; tput setaf $color_code;
+}
+
+end_color() { tput sgr0; }
+
+print_line() {
+		# start_color $1
+		printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
+		# end_color
+}
+
+color_line() {
+	# print a line with (print -n) with each character of (tput cols) being 
+	# the color of the char number
+  max_colors=$(tput colors 2>/dev/null || echo 8)  # Get available colors
+  cols=$(tput cols)
+
+  for ((i=1; i<=$cols; i++)); do
+    color_code=$((i % max_colors))
+    print -Pn "\e[38;5;${color_code}m█" 
+  done
+  echo  # Print a newline at the end
+}
+
+print_color() { start_color $1; print $2; end_color; }
+
+bin_exists() { command -v $1 &>/dev/null; }
+
+good_grep() { 
+  if grep -Eqi $@; then return 0; else return 1; fi 
+}
+
+app_exists() {
+  if ! bin_exists $1; then return 1; fi 
+  if [[ -z $2 ]]; then return 0; fi 
+  shift  # Shift arguments after checking for the search string
+  if ! good_grep "$@"; then return 1; fi 
+  return 0 # True (app exists and string is found, or no string search needed) 
+}
+
+if bin_exists snap; then
+	print_line
+	print_color 1 "found snap"
 	sudo snap refresh
 fi
 
+if bin_exists flatpak; then
+	print_line
+	print_color 1 "found flatpak"
+	flatpak update
+fi
 
 ZSHRCFILE=~/.zshrc
 if [ -f "$ZSHRCFILE" ]; then
+	print_line
+	print_color 1 "found zsh"
 	~/.oh-my-zsh/tools/./upgrade.sh
 	# omz update
 fi
 
 if ! command -v pihole &> /dev/null 
 then
-	tput bold; tput setaf 2;
-	echo "Not Raspberry Pi, will not try to update pihole."
-	tput sgr0;
+	print_line
+	print_color 2 "Not Raspberry Pi, will not try to update pihole."
 else
+	print_line
+	print_color 1 "found pihole"
 	pihole -up
 fi
 
@@ -30,83 +81,39 @@ if [[ "$ARCH_SCRIPT" == *"$ARCH_SCRIPT_PI"* ]]
 then
 	pihole -up
 else
-	tput bold; tput setaf 2;
-	echo "Not Raspberry Pi, will not try to update pihole."
-	tput sgr0;
+	# tput bold; tput setaf 2;
+	print_color 2 "Not Raspberry Pi, will not try to update pihole."
 fi
 END
 
-NOT_SET='unset'
-SET='set'
-
-PROG_APT=$NOT_SET
-PROG_DNF=$NOT_SET
-PROG_PACMAN=$NOT_SET
-PROG_ZYPPER=$NOT_SET
-
-if command -v apt &> /dev/null 
-then
-	if [ "$(grep -Ei 'debian|buntu|mint|raspbian|elementary' /etc/*release)" ]; then
-		PROG_APT=$SET
-	fi
-fi
-
-
-if command -v dnf &> /dev/null 
-then
-	if [ "$(grep -Ei 'redhat|fedora|centos' /etc/*release)" ]; then
-		PROG_DNF=$SET
-	fi
-fi
-
-
-if command -v pacman &> /dev/null 
-then
-	if [ "$(grep -Ei 'arch|manjaro' /etc/*release)" ]; then
-		PROG_PACMAN=$SET
-	fi
-fi
-
-if command -v zypper &> /dev/null 
-then
-	if [ "$(grep -Ei 'opensuse' /etc/*release)" ]; then
-		PROG_ZYPPER=$SET
-	fi
-fi
-
-tput bold; tput setaf 1;
-
-if [[ "$PROG_APT" == "$SET" ]]
-then
-	echo $PROG_APT apt
-	tput sgr0;
+if bin_exists apt && good_grep 'debian|buntu|mint|raspbian|elementary' /etc/*release; then
+	print_line
+	print_color 1 "found apt"
 	sudo apt update
 	sudo apt upgrade -y
 	sudo apt dist-upgrade -y
 	sudo apt remove -y
 fi
 
-if [[ "$PROG_PACMAN" == "$SET" ]]
-then
-	echo $PROG_PACMAN pacman
-	tput sgr0;
-	sudo pacman -Syu
-fi
-
-if [[ "$PROG_DNF" == "$SET" ]]
-then
-	echo $PROG_DNF dnf
-	tput sgr0;
+if bin_exists dnf && good_grep 'redhat|fedora|centos' /etc/*release; then
+	print_line
+	print_color 1 "found dnf"
 	sudo dnf clean all
 	sudo dnf check-update
 	sudo dnf upgrade -y
 fi
 
-if [[ "$PROG_ZYPPER" == "$SET" ]]
-then
-	echo $PROG_ZYPPER zypper
-	tput sgr0;
+if bin_exists pacman && good_grep 'arch|manjaro' /etc/*release; then
+	print_line
+	print_color 1 "found pacman"
+	sudo pacman -Syyu --noconfirm
+fi
+
+if bin_exists zypper && good_grep 'opensuse' /etc/*release; then
+	print_line
+	print_color 1 "found zypper"
 	sudo zypper update -y
 fi
 
-tput sgr0;
+color_line
+end_color
