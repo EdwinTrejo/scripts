@@ -1,0 +1,107 @@
+#!/usr/bin/env zsh
+
+# env_parallel --install
+
+# @article{Tange2011a,
+#   title = {GNU Parallel - The Command-Line Power Tool},
+#   author = {O. Tange},
+#   address = {Frederiksberg, Denmark},
+#   journal = {;login: The USENIX Magazine},
+#   month = {Feb},
+#   number = {1},
+#   volume = {36},
+#   url = {http://www.gnu.org/s/parallel},
+#   year = {2011},
+#   pages = {42-47},
+#   doi = {http://dx.doi.org/10.5281/zenodo.16303}
+# }
+
+all_files=0
+all_directories=$#
+max_col_size=11
+
+print_header() {
+  local size_hdr="Files"
+  local dir_hdr="Size"
+  local dir_name_hdr="Directory Name"
+
+  max_dir_str_len=$max_col_size
+  max_size_str_len=$max_col_size
+
+  size_str_len=$(echo -n $size_hdr | wc -m)
+  dir_str_len=$(echo -n $dir_hdr | wc -m)
+
+  ((max_dir_str_len = max_dir_str_len - dir_str_len))
+  ((max_size_str_len = max_size_str_len - size_str_len))
+
+  printf "%$(echo $size_str_len)s%$(echo $max_size_str_len)s |%$(echo $dir_str_len)s%$(echo $max_dir_str_len)s | %s\n" \
+    "$size_hdr" \
+    " " \
+    "$dir_hdr" \
+    " " \
+    "$dir_name_hdr"
+
+  printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
+}
+
+print_line() {
+  # takes 3 input
+  local command_output=$1
+  local directory_size=$2
+  local dir_name=$3
+
+  max_dir_str_len=$max_col_size
+  max_size_str_len=$max_col_size
+
+  size_str_len=$(echo -n $command_output | wc -m)
+  dir_str_len=$(echo -n $directory_size | wc -m)
+
+  ((max_dir_str_len = max_dir_str_len - dir_str_len))
+  ((max_size_str_len = max_size_str_len - size_str_len))
+
+  printf "%$(echo $max_size_str_len)s%$(echo $size_str_len)s |%$(echo $max_dir_str_len)s%$(echo $dir_str_len)s | %s\n" \
+    " " \
+    "$command_output" \
+    " " \
+    "$directory_size" \
+    "$dir_name"
+}
+
+# Function to process a single directory
+process_directory() {
+	local input=$1
+	if [[ -d "$input" ]]; then
+		# Get the full directory name using the realpath command
+		dir_name="$input"
+		if [[ "$input" == "." || "$input" == ".." ]]; then
+			dir_name=$(realpath "$input")
+		fi
+
+		# Retrieve the size of all contents in the directory
+		directory_size=$(du -sh "$dir_name" | cut -f -1)
+		# Retrieve the amount of all "files" in the directory
+		command_output=$(find $input -type f | wc -l)
+		# running count of all files
+		((all_files = all_files + command_output))
+		# print record
+		print_line $command_output $directory_size $dir_name
+	fi
+}
+
+# Main script
+print_header
+
+# Run the script in parallel for each directory
+# env_parallel --env process_directory --env print_line --env all_files --jobs 0 "process_directory" ::: "$@"
+
+all_directories=0
+for input in "$@"; do
+  if [[ -d "$input" ]]; then
+    process_directory $input &
+    ((all_directories = all_directories + 1))
+  fi
+done
+
+wait $(jobs -p)
+
+echo "$all_files files found in $all_directories directories"
