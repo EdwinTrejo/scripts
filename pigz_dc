@@ -1,0 +1,30 @@
+#!/bin/bash
+
+file="$1"
+dir="$2"
+
+[ $# -eq 0 ] && { echo "Usage: $0 file.tar.gz output_dir"; exit 1; }
+
+if [ -f "$file" ]
+then
+   tput bold; tput setaf 2;
+   echo "$file found and now extracting to $dir, please wait..."
+   
+   tput bold; tput setaf 2;
+   printf "\nSize Information From:\n"
+   tput setaf 1;
+   du -hs "$file"
+
+   tput bold; tput setaf 2;
+   printf "\nTime Information"
+   tput setaf 1;
+   time tar -I pigz -xvf "$file" -C "$dir"
+
+    tput bold; tput setaf 2;
+    printf "\nSize Information To:\n"
+    tput setaf 1;
+    du -hs "$dir"
+else
+   tput sgr0;tput setaf 1;
+   echo "Error: $file not found."
+fi

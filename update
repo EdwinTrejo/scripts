@@ -51,7 +51,7 @@ fi
 if bin_exists flatpak; then
 	print_line
 	print_color 1 "found flatpak"
-	flatpak update
+	sudo flatpak update
 fi
 
 ZSHRCFILE=~/.zshrc
